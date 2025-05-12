@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameEngine : MonoBehaviour
 {
+    [Header("GameEngine Information")]
     [SerializeField] private List<Square> m_AllSquares = new List<Square>(); // All Squares added manually in Unity Editor
 
     [SerializeField] private Square[,] m_Grid = new Square[9, 9]; // 9x9 grid of Squares
@@ -45,6 +46,8 @@ public class GameEngine : MonoBehaviour
             for (int col = 0; col < 9; col++)
             {
                 int index = row * 9 + col;
+                m_AllSquares[index].SetIndex(index);
+                m_AllSquares[index].gameObject.name = "Square_" + index;
                 m_Grid[row, col] = m_AllSquares[index];
             }
         }
@@ -87,5 +90,18 @@ public class GameEngine : MonoBehaviour
             }
         }
         return block;
+    }
+
+    public int GetBlockIndex(int index)
+    {
+        // Calculate the row and column of the square
+        int row = index / 9; // Integer division to get the row
+        int col = index % 9; // Modulo to get the column
+
+        // Calculate the block index
+        int blockRow = row / 3; // Determine which 3-row group the square is in
+        int blockCol = col / 3; // Determine which 3-column group the square is in
+
+        return blockRow * 3 + blockCol; // Combine to get the block index
     }
 }

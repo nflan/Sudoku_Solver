@@ -7,8 +7,13 @@ using Cursor = UnityEngine.Cursor;
 
 public class ValidateInput : MonoBehaviour
 {
+    [Header("ValidateInput Information")]
     [SerializeField] private Square m_Square = null;
     [SerializeField] private TMP_InputField m_InputFieldTxt = null;
+    [SerializeField] private GameEngine m_GameEngine = null;
+
+    [Header("Error Typo Information")]
+    [SerializeField] private ErrorTypo m_ErrorPanel = null;
 
     void Awake()
     {
@@ -21,6 +26,25 @@ public class ValidateInput : MonoBehaviour
                 Application.Quit();
             }
             m_InputFieldTxt.text = null;
+        }
+        if (!m_GameEngine)
+        {
+            m_GameEngine = FindAnyObjectByType<GameEngine>();
+            if (!m_GameEngine)
+            {
+                Debug.LogError("No GameEngine in the scene.");
+                Application.Quit();
+            }
+        }
+        if (!m_ErrorPanel)
+        {
+            m_ErrorPanel = this.GetComponentInChildren<ErrorTypo>(true);
+            if (!m_ErrorPanel)
+            {
+                Debug.LogError("No Error Panel in the scene.");
+                Application.Quit();
+            }
+            m_ErrorPanel.gameObject.SetActive(false);
         }
     }
 
@@ -78,6 +102,60 @@ public class ValidateInput : MonoBehaviour
         this.m_Square = square;
     }
 
+    private bool IsDuplicatedValueBlock(int index, int newValue)
+    {
+        foreach (Square square in m_GameEngine.GetBlock(m_GameEngine.GetBlockIndex(index)))
+        {
+            if (int.TryParse(square.GetValue(), out int result))
+            {
+                if (result == newValue)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private bool IsDuplicatedValueColumn(int index, int newValue)
+    {
+        foreach (Square square in m_GameEngine.GetColumn(index % 9))
+        {
+            if (int.TryParse(square.GetValue(), out int result))
+            {
+                if (result == newValue)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private bool IsDuplicatedValueRow(int index, int newValue)
+    {
+        foreach (Square square in m_GameEngine.GetRow(index / 9))
+        {
+            if (int.TryParse(square.GetValue(), out int result))
+            {
+                if (result == newValue)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private bool IsDuplicatedValues(int index, int newValue)
+    {
+        if (IsDuplicatedValueBlock(index, newValue) || IsDuplicatedValueColumn(index, newValue) || IsDuplicatedValueRow(index, newValue))
+        {
+            return true;
+        }
+        return false;
+    }
+
     public void InputKey(string key)
     {
         if (!this.m_Square)
@@ -85,20 +163,35 @@ public class ValidateInput : MonoBehaviour
             HideInputValue();
             return ;
         }
-        if (key.Length == 1 && int.TryParse(key, out int result))
+        if (key.Length == 1)
         {
-            this.m_Square.SetValue(key);
-            HideInputValue();
-            return ;
-        }
-        else
-        {
-            if (m_InputFieldTxt.text.Length > 0)
+            if (int.TryParse(key, out int result) && result != 0)
             {
-                m_InputFieldTxt.text = "";
+                // Add a check to ensure the input is a valid number (no same number in line/column/square)
+                if (!this.IsDuplicatedValues(m_Square.GetIndex(), result))
+                {
+                    this.m_Square.SetValue(key);
+                    HideInputValue();
+                    return ;
+                }
+                else
+                {
+                    m_ErrorPanel.gameObject.SetActive(false);
+                    m_ErrorPanel.SetErrorTxt("This number already exists in the same row, column or block.");
+                    m_ErrorPanel.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                m_ErrorPanel.gameObject.SetActive(false);
+                m_ErrorPanel.SetErrorTxt("Invalid input. Please enter a number between 1 and 9.");
+                m_ErrorPanel.gameObject.SetActive(true);
             }
         }
-
+        if (m_InputFieldTxt.text.Length > 0)
+        {
+            m_InputFieldTxt.text = "";
+        }
     }
 
     public void HideInputValue()

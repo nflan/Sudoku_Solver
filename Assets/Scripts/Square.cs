@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class Square : MonoBehaviour
 {
+    [Header("Square information")]
     [SerializeField] private string m_Value = null;
     [SerializeField] private TMP_Text m_ValueTxt = null;
     [SerializeField] private ValidateInput m_ValidateInput = null;
+    
+    [SerializeField] private int m_Index = 0;
 
     void Start()
     {
@@ -28,6 +31,21 @@ public class Square : MonoBehaviour
                 Application.Quit();
             }
         }
+    }
+
+    public void SetIndex(int index)
+    {
+        this.m_Index = index;
+    }
+
+    public int GetIndex()
+    {
+        return this.m_Index;
+    }
+
+    public string GetValue()
+    {
+        return this.m_Value;
     }
 
     public void WaitForInput()
