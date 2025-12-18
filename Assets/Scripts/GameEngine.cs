@@ -208,7 +208,7 @@ public class GameEngine : MonoBehaviour
             yield break ;
         }
 
-        GameObject particleFx = Instantiate(this.confettiFx);
+        GameObject particleFx = Instantiate(this.confettiFx, this.transform.parent);
         Destroy(particleFx, 3.5f);
     }
 
