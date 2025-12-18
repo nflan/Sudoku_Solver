@@ -2,6 +2,9 @@
 
 A **2D Sudoku solver built with Unity**, focused on algorithmic problem-solving and game-development practice.
 
+Itch page to try it online: https://lord-then.itch.io/sudoku-solver
+
+
 ---
 
 ## 🎯 Project Goals
