@@ -57,6 +57,7 @@ public class ValidateInput : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            this.m_Square.ResetSquare();
             HideInputValue();
             return ;
         }
@@ -68,8 +69,6 @@ public class ValidateInput : MonoBehaviour
         {
             m_InputFieldTxt.text = null;
 
-            // Frame issue: ActivateInputField() must be called in the next frame
-            // to ensure the input field is ready to receive input.
             StartCoroutine(ActivateInputFieldNextFrame());
         }
     }
@@ -168,9 +167,15 @@ public class ValidateInput : MonoBehaviour
             if (int.TryParse(key, out int result) && result != 0)
             {
                 // Add a check to ensure the input is a valid number (no same number in line/column/square)
+                if (result.ToString() == m_Square.GetValue())
+                {
+                    HideInputValue();
+                    return ;   
+                }
                 if (!this.IsDuplicatedValues(m_Square.GetIndex(), result))
                 {
                     this.m_Square.SetValue(key);
+                    this.m_Square.SetIsManuallySet(true);
                     HideInputValue();
                     return ;
                 }
@@ -198,5 +203,9 @@ public class ValidateInput : MonoBehaviour
     {
         this.gameObject.SetActive(false);
         this.m_Square = null;
+        if (m_ErrorPanel.gameObject.activeSelf)
+        {
+            m_ErrorPanel.gameObject.SetActive(false);
+        }
     }
 }

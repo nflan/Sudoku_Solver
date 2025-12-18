@@ -46,6 +46,9 @@ public class ErrorTypo : MonoBehaviour
     private IEnumerator DisableErrorPanel()
     {
         yield return new WaitForSeconds(2);
-        this.gameObject.SetActive(false);
+        if (this.gameObject.activeSelf)
+        {
+            this.gameObject.SetActive(false);
+        }
     }
 }
